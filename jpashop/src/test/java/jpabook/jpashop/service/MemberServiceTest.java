@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Transactional
@@ -33,15 +34,20 @@ class MemberServiceTest {
         assertEquals(member, memberRepository.findOne(savedId));
     }
 
-    @Test
+    @Test()
     @DisplayName("중복 회원 예외")
     void 중복_회원_예외() throws Exception {
         //given
-
+        Member member1 = new Member();
+        member1.setName("kim");
+        Member member2 = new Member();
+        member2.setName("kim");
         //when
+        memberService.join(member1);
 
         //then
-
+        assertThatThrownBy(() -> memberService.join(member2))
+                .isInstanceOf(IllegalStateException.class);
     }
 
 }
