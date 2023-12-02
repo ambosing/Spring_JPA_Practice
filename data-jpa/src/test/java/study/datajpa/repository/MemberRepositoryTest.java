@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
 import java.util.List;
 
@@ -19,6 +21,8 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    TeamRepository teamRepository;
 
     @Test
     @DisplayName("testMember")
@@ -98,8 +102,73 @@ class MemberRepositoryTest {
         Member findMember = result.get(0);
 
         //then
-
         assertThat(findMember).isEqualTo(m1);
+    }
 
+    @Test
+    @DisplayName("testNamedQuery")
+    void testQuery() throws Exception {
+        //given
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+        //when
+        List<Member> result = memberRepository.findUser("AAA", 10);
+        Member findMember = result.get(0);
+
+        //then
+        assertThat(findMember).isEqualTo(m1);
+    }
+
+    @Test
+    @DisplayName("findUsernameList")
+    void findUsernameList() throws Exception {
+        //given
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 20);
+
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+        //when
+        List<String> result = memberRepository.findUseranmeList();
+
+        //then
+        assertThat(result.get(0)).isEqualTo("AAA");
+    }
+
+
+    @Test
+    @DisplayName("findUsernameList")
+    void findMemberDto() throws Exception {
+        //given
+        Member m1 = new Member("AAA", 10);
+        Team team = new Team("teamA");
+        teamRepository.save(team);
+        m1.setTeam(team);
+        memberRepository.save(m1);
+        //when
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        //then
+        for (MemberDto dto : memberDto) {
+            System.out.println("dto = " + dto);
+        }
+    }
+
+    @Test
+    @DisplayName("findNames")
+    void findNames() throws Exception {
+        //given
+        Member m1 = new Member("AAA", 10);
+        Member m2 = new Member("BBB", 10);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+        //when
+        List<Member> results = memberRepository.findByNames(List.of(new String[]{"AAA", "BBB"}));
+        //then
+        for (Member result : results) {
+            System.out.println("result = " + result);
+        }
     }
 }
